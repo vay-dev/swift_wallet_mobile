@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:swift_wallet_mobile/features/auth/screens/login_screen.dart'; // Will create these
-import 'package:swift_wallet_mobile/features/dashboard/screens/dashboard_screen.dart'; // Will create these
+import 'package:swift_wallet_mobile/features/auth/screens/login_screen.dart';
+import 'package:swift_wallet_mobile/features/dashboard/screens/dashboard_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/splash_screen.dart';
+import 'package:swift_wallet_mobile/features/auth/auth_notifiers.dart';
 
 // definition of app routes
 class AppRoutes {
@@ -19,11 +20,8 @@ class AppRoutes {
 
 // 2. The Global GoRouter Provider
 final goRouterProvider = Provider<GoRouter>((ref) {
-  // Placeholder for authentication check (we will update this later)
-  // For now, we'll just check if the user is going to a public route.
-  
   return GoRouter(
-    initialLocation: AppRoutes.splash, // Start at the splash screen
+    initialLocation: AppRoutes.splash,
     routes: [
       // Splash Screen (Initial Route)
       GoRoute(

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-tree:*)",
+      "Bash(dir:*)",
+      "Bash(dart run build_runner:*)"
+    ]
+  }
+}

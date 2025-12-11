@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:swift_wallet_mobile/models/user_models.dart';
 import 'package:swift_wallet_mobile/services/token_storage_service.dart';
+import 'package:swift_wallet_mobile/services/api/auth_api_service.dart';
+import 'package:dio/dio.dart';
 
 part 'auth_notifiers.g.dart';
 
@@ -45,15 +47,17 @@ enum AuthStatus {
 @Riverpod(keepAlive: true) // keepAlive keeps the provider alive even if no longer watched
 class AuthNotifier extends _$AuthNotifier {
   // Use a late initialization for the storage service
-  late final TokenStorageService _tokenStorage; 
-  
+  late final TokenStorageService _tokenStorage;
+  late final AuthApiService _authApi;
+
   @override
   AuthState build() {
-    // Initialize the storage service
-    _tokenStorage = ref.read(tokenStorageServiceProvider); 
-    
+    // Initialize the storage service and API service
+    _tokenStorage = ref.read(tokenStorageServiceProvider);
+    _authApi = ref.read(authApiServiceProvider);
+
     // Default initial state
-    return AuthState(); 
+    return AuthState();
   }
 
   // Called by the Splash Screen to determine initial route
@@ -88,20 +92,57 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
-  // Method to handle a successful login
-  Future<void> login(String accessToken, String refreshToken, User user) async {
+  // Method to handle login
+  Future<String?> login({
+    required String phoneNumber,
+    required String password,
+    required String deviceId,
+    required String deviceName,
+  }) async {
     state = state.copyWith(isLoading: true);
-    
-    await _tokenStorage.saveTokens(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    );
 
-    state = state.copyWith(
-      user: user,
-      status: AuthStatus.authenticated,
-      isLoading: false,
-    );
+    try {
+      // Call the API service
+      final responseData = await _authApi.login(
+        phoneNumber: phoneNumber,
+        password: password,
+        deviceId: deviceId,
+        deviceName: deviceName,
+      );
+
+      // Extract tokens and user from response
+      final tokens = AuthTokens.fromJson(responseData['tokens']);
+      final user = User.fromJson(responseData['user']);
+
+      // Save tokens
+      await _tokenStorage.saveTokens(
+        accessToken: tokens.access,
+        refreshToken: tokens.refresh,
+      );
+
+      // Update state
+      state = state.copyWith(
+        user: user,
+        status: AuthStatus.authenticated,
+        isLoading: false,
+      );
+
+      return null; // Success, no error
+    } on DioException catch (e) {
+      state = state.copyWith(isLoading: false);
+
+      // Handle different error types
+      if (e.response?.statusCode == 403) {
+        return e.response?.data['message'] ?? 'Device mismatch detected';
+      } else if (e.response?.statusCode == 400) {
+        return e.response?.data['message'] ?? 'Invalid credentials';
+      } else {
+        return 'Network error. Please try again.';
+      }
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      return 'An unexpected error occurred: $e';
+    }
   }
 
   // Method to handle user logout
