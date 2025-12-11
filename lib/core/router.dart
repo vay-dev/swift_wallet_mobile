@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/login_screen.dart';
 import 'package:swift_wallet_mobile/features/dashboard/screens/dashboard_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/splash_screen.dart';
-import 'package:swift_wallet_mobile/features/auth/auth_notifiers.dart';
 
 // definition of app routes
 class AppRoutes {

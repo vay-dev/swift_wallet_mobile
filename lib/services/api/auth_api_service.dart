@@ -45,7 +45,7 @@ class AuthApiService {
       }
     } on DioException catch (e) {
       // Re-throw a custom exception or DioError for the Notifier to handle
-      throw e;
+      rethrow;
     } catch (e) {
       throw Exception(
         'An unknown error occurred during login: $e',
