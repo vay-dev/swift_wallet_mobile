@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 // 1. Define the keys for our tokens
 const String _accessTokenKey = 'access_token';
 const String _refreshTokenKey = 'refresh_token';
+const String _hasSeenOnboardingKey = 'has_seen_onboarding';
 
 // creating an instance of the secure storage plugin
 const FlutterSecureStorage _storage = FlutterSecureStorage();
@@ -42,5 +43,16 @@ class TokenStorageService {
   // Check if a user is logged in
   Future<bool> hasTokens() async {
     return await _storage.containsKey(key: _accessTokenKey);
+  }
+
+  // Check if user has seen onboarding (first time user check)
+  Future<bool> hasSeenOnboarding() async {
+    final value = await _storage.read(key: _hasSeenOnboardingKey);
+    return value == 'true';
+  }
+
+  // Mark onboarding as seen
+  Future<void> markOnboardingAsSeen() async {
+    await _storage.write(key: _hasSeenOnboardingKey, value: 'true');
   }
 }

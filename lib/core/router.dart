@@ -16,7 +16,6 @@ class AppRoutes {
   static const sendMoney = '/send';
 }
 
-
 // 2. The Global GoRouter Provider
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -27,7 +26,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
-      
+
       // Authentication Routes (Public Access)
       GoRoute(
         path: AppRoutes.login,
@@ -35,31 +34,39 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.signup,
-        builder: (context, state) => const Placeholder(), // Placeholder
+        builder: (context, state) =>
+            const Placeholder(), // Placeholder
       ),
       GoRoute(
         path: AppRoutes.otpVerification,
-        builder: (context, state) => const Placeholder(), // Placeholder
+        builder: (context, state) =>
+            const Placeholder(), // Placeholder
       ),
 
       // Main App Routes (Private Access)
       GoRoute(
         path: AppRoutes.dashboard,
-        builder: (context, state) => const DashboardScreen(),
+        name: AppRoutes.dashboard,
+        builder: (context, state) =>
+            const DashboardScreen(),
       ),
       GoRoute(
         path: AppRoutes.transactionHistory,
-        builder: (context, state) => const Placeholder(), // Placeholder
+        builder: (context, state) =>
+            const Placeholder(), // Placeholder
       ),
       GoRoute(
         path: AppRoutes.sendMoney,
-        builder: (context, state) => const Placeholder(), // Placeholder
+        builder: (context, state) =>
+            const Placeholder(), // Placeholder
       ),
     ],
     // 404 Error Page
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Page Not Found')),
-      body: Center(child: Text('Cannot find route for: ${state.uri}')),
+      body: Center(
+        child: Text('Cannot find route for: ${state.uri}'),
+      ),
     ),
   );
 });

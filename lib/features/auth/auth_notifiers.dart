@@ -14,10 +14,14 @@ class AuthState {
   // using a status enum for clearer state tracking
   final AuthStatus status;
 
+  // Track if user has seen onboarding
+  final bool hasSeenOnboarding;
+
   AuthState({
     this.user,
     this.isLoading = false,
     this.status = AuthStatus.initial,
+    this.hasSeenOnboarding = false,
   });
 
   // helper method to copy/update the state
@@ -25,15 +29,17 @@ class AuthState {
     User? user,
     bool? isLoading,
     AuthStatus? status,
+    bool? hasSeenOnboarding,
   }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       status: status ?? this.status,
+      // For bool, we need explicit null check since false is a valid value
+      hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
     );
   }
 }
-
 
 //  AuthStatus Enum to drive the router logic
 enum AuthStatus {
@@ -43,7 +49,9 @@ enum AuthStatus {
 }
 
 // The Notifier Class (The Brains of the Auth Flow)
-@Riverpod(keepAlive: true) // keepAlive keeps the provider alive even if no longer watched
+@Riverpod(
+  keepAlive: true,
+) // keepAlive keeps the provider alive even if no longer watched
 class AuthNotifier extends _$AuthNotifier {
   // Use a late initialization for the storage service
   late final TokenStorageService _tokenStorage;
@@ -64,6 +72,7 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(isLoading: true);
 
     final hasToken = await _tokenStorage.hasTokens();
+    final hasSeenOnboarding = await _tokenStorage.hasSeenOnboarding();
 
     // In a real app, we would use the refresh token here to get a new
     // access token and fetch the full user profile. For now, we'll
@@ -76,19 +85,28 @@ class AuthNotifier extends _$AuthNotifier {
         accountNumber: 'SW0001',
         fullName: 'Demo User',
         isVerified: true,
+        isActive: true,
       );
 
       state = state.copyWith(
         user: mockUser,
         status: AuthStatus.authenticated,
         isLoading: false,
+        hasSeenOnboarding: true, // If they have token, they've seen onboarding
       );
     } else {
       state = state.copyWith(
         status: AuthStatus.unauthenticated,
         isLoading: false,
+        hasSeenOnboarding: hasSeenOnboarding,
       );
     }
+  }
+
+  // Method to mark onboarding as completed
+  Future<void> completeOnboarding() async {
+    await _tokenStorage.markOnboardingAsSeen();
+    state = state.copyWith(hasSeenOnboarding: true);
   }
 
   // Method to handle login
@@ -110,7 +128,9 @@ class AuthNotifier extends _$AuthNotifier {
       );
 
       // Extract tokens and user from response
-      final tokens = AuthTokens.fromJson(responseData['tokens']);
+      final tokens = AuthTokens.fromJson(
+        responseData['tokens'],
+      );
       final user = User.fromJson(responseData['user']);
 
       // Save tokens
@@ -132,9 +152,11 @@ class AuthNotifier extends _$AuthNotifier {
 
       // Handle different error types
       if (e.response?.statusCode == 403) {
-        return e.response?.data['message'] ?? 'Device mismatch detected';
+        return e.response?.data['message'] ??
+            'Device mismatch detected';
       } else if (e.response?.statusCode == 400) {
-        return e.response?.data['message'] ?? 'Invalid credentials';
+        return e.response?.data['message'] ??
+            'Invalid credentials';
       } else {
         return 'Network error. Please try again.';
       }

@@ -34,15 +34,25 @@ class _SplashScreenState
 
     final authState = ref.read(authProvider);
 
-    // Navigate based on auth status
+    // Handle navigation based on auth status and onboarding
     if (authState.status == AuthStatus.authenticated) {
+      // User is authenticated, go to dashboard
       context.go(AppRoutes.dashboard);
-    } else {
-      setState(() {
-        _isCheckingAuth = false;
-        _showWelcome = true;
-      });
+      return;
     }
+
+    // Check if user has seen onboarding
+    if (authState.hasSeenOnboarding) {
+      // User has seen onboarding before, go to login
+      context.go(AppRoutes.login);
+      return;
+    }
+
+    // First time user - show welcome screen
+    setState(() {
+      _isCheckingAuth = false;
+      _showWelcome = true;
+    });
   }
 
   @override
@@ -196,8 +206,16 @@ class _SplashScreenState
               const SizedBox(height: 20),
               // Get Started Button
               ElevatedButton(
-                onPressed: () =>
-                    context.go(AppRoutes.login),
+                onPressed: () async {
+                  // Mark onboarding as seen
+                  await ref
+                      .read(authProvider.notifier)
+                      .completeOnboarding();
+                  // Navigate to login
+                  if (mounted) {
+                    context.go(AppRoutes.login);
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(
                     double.infinity,
