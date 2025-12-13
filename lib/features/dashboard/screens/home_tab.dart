@@ -269,7 +269,7 @@ class HomeTab extends ConsumerWidget {
                       QuickActionButton(
                         icon: Icons.credit_card_rounded,
                         label: 'Top Up',
-                        onTap: () {},
+                        onTap: () => context.go(AppRoutes.topup),
                         primaryColor: primaryColor
                             .withOpacity(0.8),
                       ),

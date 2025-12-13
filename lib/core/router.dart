@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/login_screen.dart';
 import 'package:swift_wallet_mobile/features/dashboard/screens/dashboard_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/splash_screen.dart';
+import 'package:swift_wallet_mobile/features/topup/screens/topup_screen.dart';
+import 'package:swift_wallet_mobile/features/auth/screens/signup_screen.dart';
+import 'package:swift_wallet_mobile/features/auth/screens/otp_verification_screen.dart';
+import 'package:swift_wallet_mobile/features/auth/screens/account_setup_screen.dart';
 
 // definition of app routes
 class AppRoutes {
@@ -11,9 +15,42 @@ class AppRoutes {
   static const login = '/login';
   static const signup = '/signup';
   static const otpVerification = '/otp';
+  static const accountSetup = '/account-setup';
   static const dashboard = '/dashboard';
   static const transactionHistory = '/history';
   static const sendMoney = '/send';
+  static const topup = '/topup';
+}
+
+// Custom page transition builder
+CustomTransitionPage _buildPageWithFadeTransition(Widget child) {
+  return CustomTransitionPage(
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+        child: child,
+      );
+    },
+  );
+}
+
+CustomTransitionPage _buildPageWithSlideTransition(Widget child) {
+  return CustomTransitionPage(
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.easeInOut;
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      var offsetAnimation = animation.drive(tween);
+
+      return SlideTransition(
+        position: offsetAnimation,
+        child: child,
+      );
+    },
+  );
 }
 
 // 2. The Global GoRouter Provider
@@ -24,31 +61,50 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Splash Screen (Initial Route)
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => _buildPageWithFadeTransition(
+          const SplashScreen(),
+        ),
       ),
 
       // Authentication Routes (Public Access)
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => _buildPageWithFadeTransition(
+          const LoginScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.signup,
-        builder: (context, state) =>
-            const Placeholder(), // Placeholder
+        pageBuilder: (context, state) => _buildPageWithSlideTransition(
+          const SignupScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.otpVerification,
-        builder: (context, state) =>
-            const Placeholder(), // Placeholder
+        pageBuilder: (context, state) {
+          final signupData = state.extra as Map<String, dynamic>;
+          return _buildPageWithSlideTransition(
+            OtpVerificationScreen(signupData: signupData),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.accountSetup,
+        pageBuilder: (context, state) {
+          final signupData = state.extra as Map<String, dynamic>;
+          return _buildPageWithSlideTransition(
+            AccountSetupScreen(signupData: signupData),
+          );
+        },
       ),
 
       // Main App Routes (Private Access)
       GoRoute(
         path: AppRoutes.dashboard,
         name: AppRoutes.dashboard,
-        builder: (context, state) =>
-            const DashboardScreen(),
+        pageBuilder: (context, state) => _buildPageWithFadeTransition(
+          const DashboardScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.transactionHistory,
@@ -59,6 +115,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.sendMoney,
         builder: (context, state) =>
             const Placeholder(), // Placeholder
+      ),
+      GoRoute(
+        path: AppRoutes.topup,
+        builder: (context, state) =>
+            const TopUpScreen(),
       ),
     ],
     // 404 Error Page

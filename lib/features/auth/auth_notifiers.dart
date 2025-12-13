@@ -166,6 +166,92 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
+  // Method to request signup OTP
+  Future<String?> requestSignupOtp({
+    required String phoneNumber,
+  }) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      await _authApi.requestSignupOtp(phoneNumber: phoneNumber);
+      state = state.copyWith(isLoading: false);
+      return null; // Success
+    } on DioException catch (e) {
+      state = state.copyWith(isLoading: false);
+      if (e.response?.statusCode == 400) {
+        return e.response?.data['message'] ?? 'Invalid phone number';
+      }
+      return 'Network error. Please try again.';
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      return 'An unexpected error occurred: $e';
+    }
+  }
+
+  // Method to verify OTP and create account
+  Future<String?> verifySignupOtp({
+    required String phoneNumber,
+    required String otpCode,
+    required String fullName,
+    required String password,
+    String? email,
+  }) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final responseData = await _authApi.verifySignupOtp(
+        phoneNumber: phoneNumber,
+        otpCode: otpCode,
+        fullName: fullName,
+        password: password,
+        email: email,
+      );
+
+      // Extract tokens and user from response
+      final tokens = AuthTokens.fromJson(responseData['tokens']);
+      final user = User.fromJson(responseData['user']);
+
+      // Save tokens
+      await _tokenStorage.saveTokens(
+        accessToken: tokens.access,
+        refreshToken: tokens.refresh,
+      );
+
+      // Update state
+      state = state.copyWith(
+        user: user,
+        status: AuthStatus.authenticated,
+        isLoading: false,
+      );
+
+      return null; // Success
+    } on DioException catch (e) {
+      state = state.copyWith(isLoading: false);
+      if (e.response?.statusCode == 400) {
+        return e.response?.data['message'] ?? 'Invalid OTP code';
+      }
+      return 'Network error. Please try again.';
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      return 'An unexpected error occurred: $e';
+    }
+  }
+
+  // Method to upload profile picture
+  Future<String?> uploadProfilePicture(String imagePath) async {
+    try {
+      final imageUrl = await _authApi.uploadProfilePicture(imagePath);
+      if (imageUrl != null && state.user != null) {
+        // Update user with new profile picture
+        // Note: You may need to add a copyWith method to User model
+        state = state.copyWith(user: state.user);
+      }
+      return imageUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // Method to handle user logout
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
