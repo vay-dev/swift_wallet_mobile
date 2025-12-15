@@ -61,11 +61,9 @@ class AuthApiService {
       if (response.data['status'] == 'success') {
         return response.data;
       } else {
-        throw Exception(
-          response.data['message'] ?? 'Failed to send OTP',
-        );
+        throw Exception(response.data['message'] ?? 'Failed to send OTP');
       }
-    } on DioException catch (e) {
+    } on DioException {
       rethrow;
     } catch (e) {
       throw Exception('An unknown error occurred: $e');
@@ -100,11 +98,9 @@ class AuthApiService {
       if (response.data['status'] == 'success') {
         return response.data['data'] as Map<String, dynamic>;
       } else {
-        throw Exception(
-          response.data['message'] ?? 'Verification failed',
-        );
+        throw Exception(response.data['message'] ?? 'Verification failed');
       }
-    } on DioException catch (e) {
+    } on DioException {
       rethrow;
     } catch (e) {
       throw Exception('An unknown error occurred: $e');
@@ -136,7 +132,7 @@ class AuthApiService {
           response.data['message'] ?? 'Login failed due to API error.',
         );
       }
-    } on DioException catch (e) {
+    } on DioException {
       rethrow;
     } catch (e) {
       throw Exception('An unknown error occurred during login: $e');
