@@ -8,6 +8,7 @@ import 'package:swift_wallet_mobile/features/topup/screens/topup_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/signup_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/otp_verification_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/account_setup_screen.dart';
+import 'package:swift_wallet_mobile/features/pages/notificaitons_activity_screen.dart';
 
 // definition of app routes
 class AppRoutes {
@@ -23,33 +24,44 @@ class AppRoutes {
 }
 
 // Custom page transition builder
-CustomTransitionPage _buildPageWithFadeTransition(Widget child) {
+CustomTransitionPage _buildPageWithFadeTransition(
+  Widget child,
+) {
   return CustomTransitionPage(
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
-        child: child,
-      );
-    },
+    transitionsBuilder:
+        (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: CurveTween(
+              curve: Curves.easeInOut,
+            ).animate(animation),
+            child: child,
+          );
+        },
   );
 }
 
-CustomTransitionPage _buildPageWithSlideTransition(Widget child) {
+CustomTransitionPage _buildPageWithSlideTransition(
+  Widget child,
+) {
   return CustomTransitionPage(
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0);
-      const end = Offset.zero;
-      const curve = Curves.easeInOut;
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-      var offsetAnimation = animation.drive(tween);
+    transitionsBuilder:
+        (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
 
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
-    },
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
   );
 }
 
@@ -61,28 +73,32 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Splash Screen (Initial Route)
       GoRoute(
         path: AppRoutes.splash,
-        pageBuilder: (context, state) => _buildPageWithFadeTransition(
-          const SplashScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPageWithFadeTransition(
+              const SplashScreen(),
+            ),
       ),
 
       // Authentication Routes (Public Access)
       GoRoute(
         path: AppRoutes.login,
-        pageBuilder: (context, state) => _buildPageWithFadeTransition(
-          const LoginScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPageWithFadeTransition(
+              const LoginScreen(),
+            ),
       ),
       GoRoute(
         path: AppRoutes.signup,
-        pageBuilder: (context, state) => _buildPageWithSlideTransition(
-          const SignupScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPageWithSlideTransition(
+              const SignupScreen(),
+            ),
       ),
       GoRoute(
         path: AppRoutes.otpVerification,
         pageBuilder: (context, state) {
-          final signupData = state.extra as Map<String, dynamic>;
+          final signupData =
+              state.extra as Map<String, dynamic>;
           return _buildPageWithSlideTransition(
             OtpVerificationScreen(signupData: signupData),
           );
@@ -91,7 +107,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.accountSetup,
         pageBuilder: (context, state) {
-          final signupData = state.extra as Map<String, dynamic>;
+          final signupData =
+              state.extra as Map<String, dynamic>;
           return _buildPageWithSlideTransition(
             AccountSetupScreen(signupData: signupData),
           );
@@ -102,24 +119,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.dashboard,
         name: AppRoutes.dashboard,
-        pageBuilder: (context, state) => _buildPageWithFadeTransition(
-          const DashboardScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPageWithFadeTransition(DashboardScreen()),
       ),
       GoRoute(
         path: AppRoutes.transactionHistory,
         builder: (context, state) =>
-            const Placeholder(), // Placeholder
+            NotificaitonsActivityScreen(), // Placeholder
       ),
       GoRoute(
         path: AppRoutes.sendMoney,
         builder: (context, state) =>
-            const Placeholder(), // Placeholder
+            Placeholder(), // Placeholder
       ),
       GoRoute(
         path: AppRoutes.topup,
-        builder: (context, state) =>
-            const TopUpScreen(),
+        builder: (context, state) => TopUpScreen(),
       ),
     ],
     // 404 Error Page

@@ -58,7 +58,7 @@ class AuthApiService {
         data: {'phone_number': phoneNumber},
       );
 
-      if (response.data['status'] == 'success') {
+      if (response.data['success'] == true) {
         return response.data;
       } else {
         throw Exception(response.data['message'] ?? 'Failed to send OTP');
@@ -95,7 +95,7 @@ class AuthApiService {
         },
       );
 
-      if (response.data['status'] == 'success') {
+      if (response.data['success'] == true) {
         return response.data['data'] as Map<String, dynamic>;
       } else {
         throw Exception(response.data['message'] ?? 'Verification failed');
@@ -125,7 +125,7 @@ class AuthApiService {
         },
       );
 
-      if (response.data['status'] == 'success') {
+      if (response.data['success'] == true) {
         return response.data['data'] as Map<String, dynamic>;
       } else {
         throw Exception(
