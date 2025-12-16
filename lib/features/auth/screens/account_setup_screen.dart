@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_wallet_mobile/core/router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swift_wallet_mobile/features/auth/auth_notifiers.dart';
+import 'package:lottie/lottie.dart';
 
 class AccountSetupScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> signupData;
@@ -19,45 +20,22 @@ class AccountSetupScreen extends ConsumerStatefulWidget {
       _AccountSetupScreenState();
 }
 
-class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
-    with SingleTickerProviderStateMixin {
+class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
   File? _profileImage;
   bool _biometricsEnabled = false;
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize animation for success icon
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _scaleAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    );
-
-    // Start animation
-    _animationController.forward();
-
-    // Show biometric setup dialog after animation
+    // Show biometric setup dialog after animation completes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 800), () {
+      Future.delayed(const Duration(milliseconds: 1500), () {
         if (mounted) {
           _showBiometricSetupDialog();
         }
       });
     });
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   Future<void> _showBiometricSetupDialog() async {
@@ -79,21 +57,6 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
 
   Future<void> _enableBiometrics() async {
     // TODO: Implement biometric authentication setup
-    // final localAuth = LocalAuthentication();
-    // try {
-    //   bool canCheckBiometrics = await localAuth.canCheckBiometrics;
-    //   if (canCheckBiometrics) {
-    //     bool authenticated = await localAuth.authenticate(
-    //       localizedReason: 'Enable biometric authentication',
-    //     );
-    //     if (authenticated) {
-    //       setState(() => _biometricsEnabled = true);
-    //     }
-    //   }
-    // } catch (e) {
-    //   print('Error: $e');
-    // }
-
     // For now, just simulate enabling
     setState(() => _biometricsEnabled = true);
 
@@ -131,7 +94,7 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
   }
 
   void _completeSetup() {
-    // Navigate to dashboard
+    // Clear navigation stack and navigate to dashboard
     context.go(AppRoutes.dashboard);
   }
 
@@ -142,29 +105,22 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              // Animated Success Icon
-              const SizedBox(height: 40),
-              ScaleTransition(
-                scale: _scaleAnimation,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_circle,
-                    size: 60,
-                    color: Colors.green,
-                  ),
+              // Lottie Success Animation
+              const SizedBox(height: 20),
+              SizedBox(
+                width: 200,
+                height: 200,
+                child: Lottie.asset(
+                  'assets/lotties/Success.json',
+                  repeat: false, // Play animation only once
+                  animate: true,
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
 
               // Title
               Text(
@@ -181,7 +137,7 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
                       color: Colors.grey[600],
                     ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
 
               // Profile Picture Section
               GestureDetector(
@@ -249,7 +205,7 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: _biometricsEnabled
-                            ? Colors.green.withOpacity(0.1)
+                            ? Colors.green.withAlpha(25)
                             : Colors.grey[200],
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -264,9 +220,9 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Biometric Login',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -282,22 +238,34 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
                         ],
                       ),
                     ),
-                    if (!_biometricsEnabled)
-                      TextButton(
-                        onPressed: _showBiometricSetupDialog,
-                        child: Text(
-                          'Enable',
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontWeight: FontWeight.bold,
+                    _biometricsEnabled
+                        ? Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          )
+                        : TextButton(
+                            onPressed: _showBiometricSetupDialog,
+                            child: Text(
+                              'Enable',
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                   ],
                 ),
               ),
 
-              const Spacer(),
+              const SizedBox(height: 60),
 
               // Continue Button
               ElevatedButton(
@@ -331,6 +299,7 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen>
                   ),
                 ),
               ),
+              const SizedBox(height: 40), // Bottom padding
             ],
           ),
         ),
@@ -366,7 +335,7 @@ class _BiometricSetupDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
+                color: primaryColor.withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: Icon(
