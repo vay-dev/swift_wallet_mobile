@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:swift_wallet_mobile/core/router.dart';
 import 'package:swift_wallet_mobile/features/auth/auth_notifiers.dart';
 import 'package:swift_wallet_mobile/models/user_models.dart';
+import 'package:swift_wallet_mobile/features/dashboard/widgets/promo_carousel.dart';
 
 // --- Reusable Component 1: Quick Action Button ---
 class QuickActionButton extends StatelessWidget {
@@ -313,57 +314,19 @@ class HomeTab extends ConsumerWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
 
-                  // 6. Promo & Discount Section Header
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Promo & Discount',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      Text(
-                        'See More',
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
+            // 6. Promo Carousel (Outside padding to be full width)
+            const PromoCarousel(),
 
-                  // 7. Promo Banner (Horizontal Scroll)
-                  SizedBox(
-                    height:
-                        150, // Height of the promo banner
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildPromoCard(
-                          context,
-                          primaryColor,
-                          '30% OFF',
-                          'Black Friday deal',
-                          'assets/images/banner-1.jpg',
-                        ),
-                        _buildPromoCard(
-                          context,
-                          primaryColor.withOpacity(0.8),
-                          '10% Cashback',
-                          'Next Transfer',
-                          'assets/images/banner-2.jpeg',
-                        ),
-                      ],
-                    ),
-                  ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
                   const SizedBox(
                     height: 100,
@@ -374,63 +337,6 @@ class HomeTab extends ConsumerWidget {
           ]),
         ),
       ],
-    );
-  }
-
-  Widget _buildPromoCard(
-    BuildContext context,
-    Color color,
-    String discount,
-    String title,
-    String imagePath,
-  ) {
-    return Container(
-      width:
-          MediaQuery.of(context).size.width *
-          0.75, // Takes 75% of screen width
-      margin: const EdgeInsets.only(right: 15),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: color, // Fallback color if image fails to load
-        image: DecorationImage(
-          image: AssetImage(imagePath),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            color.withOpacity(
-              0.6,
-            ), // Blend with app theme color (reduced to 0.6 for better visibility)
-            BlendMode
-                .multiply, // Multiply blend mode preserves theme color
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            discount,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium
-                ?.copyWith(color: Colors.white),
-          ),
-          const Spacer(),
-          Text(
-            'Get discount for every transaction',
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: Colors.white70),
-          ),
-        ],
-      ),
     );
   }
 }

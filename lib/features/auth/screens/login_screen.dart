@@ -36,8 +36,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _deviceId = 'web-debug-12345';
   final _deviceName = 'Chrome Debug Browser';
 
-  String? _errorMessage;
-
   @override
   void dispose() {
     _phoneController.dispose();
@@ -49,10 +47,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    setState(() {
-      _errorMessage = null;
-    });
 
     final notifier = ref.read(authProvider.notifier);
 
@@ -68,9 +62,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
 
     if (error != null) {
-      setState(() {
-        _errorMessage = error;
-      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

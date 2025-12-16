@@ -15,7 +15,6 @@ class SplashScreen extends ConsumerStatefulWidget {
 class _SplashScreenState
     extends ConsumerState<SplashScreen> {
   bool _isCheckingAuth = true;
-  bool _showWelcome = false;
 
   @override
   void initState() {
@@ -51,7 +50,6 @@ class _SplashScreenState
     // First time user - show welcome screen
     setState(() {
       _isCheckingAuth = false;
-      _showWelcome = true;
     });
   }
 

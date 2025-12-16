@@ -8,7 +8,7 @@ import 'package:swift_wallet_mobile/features/topup/screens/topup_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/signup_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/otp_verification_screen.dart';
 import 'package:swift_wallet_mobile/features/auth/screens/account_setup_screen.dart';
-import 'package:swift_wallet_mobile/features/pages/notificaitons_activity_screen.dart';
+import 'package:swift_wallet_mobile/features/notifications/screens/notifications_screen.dart';
 
 // definition of app routes
 class AppRoutes {
@@ -19,6 +19,7 @@ class AppRoutes {
   static const accountSetup = '/account-setup';
   static const dashboard = '/dashboard';
   static const transactionHistory = '/history';
+  static const notifications = '/notifications';
   static const sendMoney = '/send';
   static const topup = '/topup';
 }
@@ -125,7 +126,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.transactionHistory,
         builder: (context, state) =>
-            NotificaitonsActivityScreen(), // Placeholder
+            const Placeholder(), // TODO: Create transaction history screen
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        pageBuilder: (context, state) =>
+            _buildPageWithSlideTransition(
+              const NotificationsScreen(),
+            ),
       ),
       GoRoute(
         path: AppRoutes.sendMoney,
