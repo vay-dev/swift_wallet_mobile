@@ -109,8 +109,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: primaryColor.withOpacity(
-                              0.3,
+                            color: primaryColor.withValues(
+                              alpha: 0.3,
                             ),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
@@ -366,7 +366,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Implement forgot password
+                        // : Implement forgot password
                       },
                       child: Text(
                         'Forgot Password?',

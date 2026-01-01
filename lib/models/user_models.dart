@@ -9,6 +9,7 @@ class User {
   final String? profilePictureUrl;
   final DateTime? dateJoined;
   final DateTime? lastLogin;
+  final String walletBalance;
 
   User({
     required this.id,
@@ -21,6 +22,7 @@ class User {
     this.profilePictureUrl,
     this.dateJoined,
     this.lastLogin,
+    required this.walletBalance,
   });
 
   // Factory method to create a User from the API response JSON
@@ -40,6 +42,7 @@ class User {
       lastLogin: json['last_login'] != null
           ? DateTime.parse(json['last_login'] as String)
           : null,
+      walletBalance: '',
     );
   }
 

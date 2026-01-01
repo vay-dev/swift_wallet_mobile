@@ -10,6 +10,7 @@ part 'auth_notifiers.g.dart';
 class AuthState {
   final User? user;
   final bool isLoading;
+  final String? error;
 
   // using a status enum for clearer state tracking
   final AuthStatus status;
@@ -22,6 +23,7 @@ class AuthState {
     this.isLoading = false,
     this.status = AuthStatus.initial,
     this.hasSeenOnboarding = false,
+    this.error,
   });
 
   // helper method to copy/update the state
@@ -30,13 +32,17 @@ class AuthState {
     bool? isLoading,
     AuthStatus? status,
     bool? hasSeenOnboarding,
+    String? error,
+    bool clearError = false,
   }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       status: status ?? this.status,
+      error: clearError ? null : (error ?? this.error),
       // For bool, we need explicit null check since false is a valid value
-      hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
+      hasSeenOnboarding:
+          hasSeenOnboarding ?? this.hasSeenOnboarding,
     );
   }
 }
@@ -72,7 +78,8 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(isLoading: true);
 
     final hasToken = await _tokenStorage.hasTokens();
-    final hasSeenOnboarding = await _tokenStorage.hasSeenOnboarding();
+    final hasSeenOnboarding = await _tokenStorage
+        .hasSeenOnboarding();
 
     // In a real app, we would use the refresh token here to get a new
     // access token and fetch the full user profile. For now, we'll
@@ -86,13 +93,15 @@ class AuthNotifier extends _$AuthNotifier {
         fullName: 'Demo User',
         isVerified: true,
         isActive: true,
+        walletBalance: '1000.00',
       );
 
       state = state.copyWith(
         user: mockUser,
         status: AuthStatus.authenticated,
         isLoading: false,
-        hasSeenOnboarding: true, // If they have token, they've seen onboarding
+        hasSeenOnboarding:
+            true, // If they have token, they've seen onboarding
       );
     } else {
       state = state.copyWith(
@@ -148,7 +157,12 @@ class AuthNotifier extends _$AuthNotifier {
 
       return null; // Success, no error
     } on DioException catch (e) {
-      state = state.copyWith(isLoading: false);
+      final errorMessage =
+          'An error occurred: ${e.message}';
+      state = state.copyWith(
+        isLoading: false,
+        error: errorMessage,
+      );
 
       // Handle different error types
       if (e.response?.statusCode == 403) {
@@ -173,13 +187,16 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(isLoading: true);
 
     try {
-      await _authApi.requestSignupOtp(phoneNumber: phoneNumber);
+      await _authApi.requestSignupOtp(
+        phoneNumber: phoneNumber,
+      );
       state = state.copyWith(isLoading: false);
       return null; // Success
     } on DioException catch (e) {
       state = state.copyWith(isLoading: false);
       if (e.response?.statusCode == 400) {
-        return e.response?.data['message'] ?? 'Invalid phone number';
+        return e.response?.data['message'] ??
+            'Invalid phone number';
       }
       return 'Network error. Please try again.';
     } catch (e) {
@@ -208,7 +225,9 @@ class AuthNotifier extends _$AuthNotifier {
       );
 
       // Extract tokens and user from response
-      final tokens = AuthTokens.fromJson(responseData['tokens']);
+      final tokens = AuthTokens.fromJson(
+        responseData['tokens'],
+      );
       final user = User.fromJson(responseData['user']);
 
       // Save tokens
@@ -228,7 +247,8 @@ class AuthNotifier extends _$AuthNotifier {
     } on DioException catch (e) {
       state = state.copyWith(isLoading: false);
       if (e.response?.statusCode == 400) {
-        return e.response?.data['message'] ?? 'Invalid OTP code';
+        return e.response?.data['message'] ??
+            'Invalid OTP code';
       }
       return 'Network error. Please try again.';
     } catch (e) {
@@ -238,9 +258,13 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   // Method to upload profile picture
-  Future<String?> uploadProfilePicture(String imagePath) async {
+  Future<String?> uploadProfilePicture(
+    String imagePath,
+  ) async {
     try {
-      final imageUrl = await _authApi.uploadProfilePicture(imagePath);
+      final imageUrl = await _authApi.uploadProfilePicture(
+        imagePath,
+      );
       if (imageUrl != null && state.user != null) {
         // Update user with new profile picture
         // Note: You may need to add a copyWith method to User model

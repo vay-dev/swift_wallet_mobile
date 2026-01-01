@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swift_wallet_mobile/core/router.dart';
 import 'package:swift_wallet_mobile/features/auth/auth_notifiers.dart';
+import 'package:swift_wallet_mobile/features/notifications/notification_notifiers.dart';
 import 'package:swift_wallet_mobile/models/user_models.dart';
 import 'package:swift_wallet_mobile/features/dashboard/widgets/promo_carousel.dart';
 
@@ -107,11 +108,22 @@ class PaymentItem extends StatelessWidget {
 }
 
 // --- Main Home Tab Widget ---
-class HomeTab extends ConsumerWidget {
+class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends ConsumerState<HomeTab> {
+  Future<void> _refreshData(WidgetRef ref) async {
+    await ref
+        .read(notificationProvider.notifier)
+        .fetchPromotions();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final User? user = ref.watch(
       authProvider.select((state) => state.user),
     );
@@ -163,180 +175,188 @@ class HomeTab extends ConsumerWidget {
       ),
     ];
 
-    return CustomScrollView(
-      slivers: [
-        // 1. AppBar Area
-        SliverAppBar(
-          pinned: true,
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Row(
-            children: [
-              // Logo Placeholder (using Icon as per design)
-              Icon(
-                Icons.account_balance_wallet_outlined,
-                color: primaryColor,
-                size: 30,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'WiPay', // Placeholder brand name from design
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: primaryColor,
-                    ),
+    return RefreshIndicator(
+      onRefresh: () => _refreshData(ref),
+      color: primaryColor,
+      child: CustomScrollView(
+        slivers: [
+          // 1. AppBar Area
+          SliverAppBar(
+            pinned: true,
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            title: Row(
+              children: [
+                // Logo Placeholder (using Icon as per design)
+                Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: primaryColor,
+                  size: 30,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'WiPay', // Placeholder brand name from design
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                ),
+              ],
+            ),
+            actions: [
+              // Settings Icon
+              IconButton(
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: Colors.black54,
+                ),
+                onPressed: () {},
               ),
             ],
           ),
-          actions: [
-            // Settings Icon
-            IconButton(
-              icon: const Icon(
-                Icons.settings_outlined,
-                color: Colors.black54,
-              ),
-              onPressed: () {},
-            ),
-          ],
-        ),
 
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-              ),
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                ),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
 
-                  // 2. Welcome & Balance
-                  Text(
-                    'Hello ${user?.fullName ?? 'Andre,'}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Your available balance',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                      ),
-                      // Hardcoded balance (Will be replaced with API data soon)
-                      Text(
-                        '\$15,901',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // 3. Quick Action Buttons (Transfer, Top Up, History)
-                  Row(
-                    children: [
-                      QuickActionButton(
-                        icon: Icons.swap_horiz_rounded,
-                        label: 'Transfer',
-                        onTap: () =>
-                            context.go(AppRoutes.sendMoney),
-                        primaryColor: primaryColor,
-                      ),
-                      const SizedBox(width: 10),
-                      QuickActionButton(
-                        icon: Icons.credit_card_rounded,
-                        label: 'Top Up',
-                        onTap: () => context.go(AppRoutes.topup),
-                        primaryColor: primaryColor
-                            .withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 10),
-                      QuickActionButton(
-                        icon: Icons.history_rounded,
-                        label: 'History',
-                        onTap: () => context.go(
-                          AppRoutes.transactionHistory,
-                        ),
-                        primaryColor: primaryColor
-                            .withOpacity(0.6),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // 4. Payment List Header
-                  Text(
-                    'Payment List',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // 5. Scrollable Payment Icon List (Horizontal Scroll)
-                  SizedBox(
-                    height:
-                        90, // Defines the height for the horizontal list
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: paymentItems.length,
-                      itemBuilder: (context, index) {
-                        return paymentItems[index];
-                      },
+                    // 2. Welcome & Balance
+                    Text(
+                      'Hello ${user?.fullName ?? 'There,'}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                  ),
+                    const SizedBox(height: 5),
+                    Row(
+                      mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Your available balance',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                        ),
+                        // Hardcoded balance (Will be replaced with API data soon)
+                        Text(
+                          '\₦ ${user?.walletBalance ?? '0.00'}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                        ),
+                      ],
+                    ),
 
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 25),
+
+                    // 3. Quick Action Buttons (Transfer, Top Up, History)
+                    Row(
+                      children: [
+                        QuickActionButton(
+                          icon: Icons.swap_horiz_rounded,
+                          label: 'Transfer',
+                          onTap: () => context.go(
+                            AppRoutes.sendMoney,
+                          ),
+                          primaryColor: primaryColor,
+                        ),
+                        const SizedBox(width: 10),
+                        QuickActionButton(
+                          icon: Icons.credit_card_rounded,
+                          label: 'Top Up',
+                          onTap: () =>
+                              context.go(AppRoutes.topup),
+                          primaryColor: primaryColor
+                              .withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 10),
+                        QuickActionButton(
+                          icon: Icons.history_rounded,
+                          label: 'History',
+                          onTap: () => context.go(
+                            AppRoutes.transactionHistory,
+                          ),
+                          primaryColor: primaryColor
+                              .withOpacity(0.6),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // 4. Payment List Header
+                    Text(
+                      'Payment List',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // 5. Scrollable Payment Icon List (Horizontal Scroll)
+                    SizedBox(
+                      height:
+                          90, // Defines the height for the horizontal list
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: paymentItems.length,
+                        itemBuilder: (context, index) {
+                          return paymentItems[index];
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
-            ),
 
-            // 6. Promo Carousel (Outside padding to be full width)
-            const PromoCarousel(),
+              // 6. Promo Carousel (Outside padding to be full width)
+              const PromoCarousel(),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  const SizedBox(
-                    height: 100,
-                  ), // Space for the FAB/Navbar padding
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                ),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 100,
+                    ), // Space for the FAB/Navbar padding
+                  ],
+                ),
               ),
-            ),
-          ]),
-        ),
-      ],
+            ]),
+          ),
+        ],
+      ),
     );
   }
 }

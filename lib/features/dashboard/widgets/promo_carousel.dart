@@ -9,10 +9,12 @@ class PromoCarousel extends ConsumerStatefulWidget {
   const PromoCarousel({super.key});
 
   @override
-  ConsumerState<PromoCarousel> createState() => _PromoCarouselState();
+  ConsumerState<PromoCarousel> createState() =>
+      _PromoCarouselState();
 }
 
-class _PromoCarouselState extends ConsumerState<PromoCarousel> {
+class _PromoCarouselState
+    extends ConsumerState<PromoCarousel> {
   int _currentIndex = 0;
 
   @override
@@ -20,13 +22,17 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
     super.initState();
     // Fetch promotions when widget loads
     Future.microtask(
-      () => ref.read(notificationProvider.notifier).fetchPromotions(),
+      () => ref
+          .read(notificationProvider.notifier)
+          .fetchPromotions(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final notificationState = ref.watch(notificationProvider);
+    final notificationState = ref.watch(
+      notificationProvider,
+    );
     final promotions = notificationState.promotions;
 
     if (promotions.isEmpty) {
@@ -37,9 +43,12 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Promo & Discount',
@@ -55,7 +64,9 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
                 child: Text(
                   'See More',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -71,8 +82,10 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
             viewportFraction: 0.85,
             enlargeCenterPage: true,
             autoPlay: true,
-            autoPlayInterval: const Duration(seconds: 5),
-            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            autoPlayInterval: const Duration(seconds: 10),
+            autoPlayAnimationDuration: const Duration(
+              milliseconds: 800,
+            ),
             autoPlayCurve: Curves.fastOutSlowIn,
             pauseAutoPlayOnTouch: true,
             aspectRatio: 16 / 9,
@@ -95,7 +108,9 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
             return Container(
               width: _currentIndex == entry.key ? 24 : 8,
               height: 8,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
+              margin: const EdgeInsets.symmetric(
+                horizontal: 4,
+              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 color: _currentIndex == entry.key
@@ -113,7 +128,9 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
     return GestureDetector(
       onTap: () {
         // Track interaction
-        ref.read(notificationProvider.notifier).trackInteraction(
+        ref
+            .read(notificationProvider.notifier)
+            .trackInteraction(
               promotionId: promo.id,
               interactionType: 'CLICK',
             );
@@ -155,57 +172,72 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
                     child: CircularProgressIndicator(),
                   ),
                 ),
-                errorWidget: (context, url, error) => Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primary.withOpacity(0.7),
-                      ],
-                    ),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.card_giftcard,
-                          size: 40,
-                          color: Colors.white,
+                errorWidget: (context, url, error) =>
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.7),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            promo.title,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.card_giftcard,
+                              size: 40,
                               color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            promo.description,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                              child: Text(
+                                promo.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight:
+                                      FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 4),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                              child: Text(
+                                promo.description,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow:
+                                    TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
               ),
               // Gradient overlay for better text readability
               Container(
@@ -226,7 +258,8 @@ class _PromoCarouselState extends ConsumerState<PromoCarousel> {
                 left: 16,
                 right: 16,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Text(
                       promo.title,

@@ -78,14 +78,25 @@ class _DashboardScreenState
         onPressed: () {
           context.go('/send');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Central Action: Scan/Transfer'))
+            SnackBar(
+              content: Text(
+                'Central Action: Scan/Transfer',
+              ),
+            ),
           );
         },
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.primary,
         shape: const CircleBorder(),
-        child: const Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 30),
+        child: const Icon(
+          Icons.swap_horiz_rounded,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerDocked,
     );
   }
 }

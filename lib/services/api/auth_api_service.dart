@@ -61,7 +61,9 @@ class AuthApiService {
       if (response.data['success'] == true) {
         return response.data;
       } else {
-        throw Exception(response.data['message'] ?? 'Failed to send OTP');
+        throw Exception(
+          response.data['message'] ?? 'Failed to send OTP',
+        );
       }
     } on DioException {
       rethrow;
@@ -96,9 +98,12 @@ class AuthApiService {
       );
 
       if (response.data['success'] == true) {
-        return response.data['data'] as Map<String, dynamic>;
+        return response.data['data']
+            as Map<String, dynamic>;
       } else {
-        throw Exception(response.data['message'] ?? 'Verification failed');
+        throw Exception(
+          response.data['message'] ?? 'Verification failed',
+        );
       }
     } on DioException {
       rethrow;
@@ -125,25 +130,36 @@ class AuthApiService {
         },
       );
 
+      // ignore: avoid_print
+      // print(response);
+
       if (response.data['success'] == true) {
-        return response.data['data'] as Map<String, dynamic>;
+        return response.data['data']
+            as Map<String, dynamic>;
       } else {
         throw Exception(
-          response.data['message'] ?? 'Login failed due to API error.',
+          response.data['message'] ??
+              'Login failed due to API error.',
         );
       }
     } on DioException {
       rethrow;
     } catch (e) {
-      throw Exception('An unknown error occurred during login: $e');
+      throw Exception(
+        'An unknown error occurred during login: $e',
+      );
     }
   }
 
   /// Upload profile picture
-  Future<String?> uploadProfilePicture(String imagePath) async {
+  Future<String?> uploadProfilePicture(
+    String imagePath,
+  ) async {
     try {
       final formData = FormData.fromMap({
-        'display_picture': await MultipartFile.fromFile(imagePath),
+        'display_picture': await MultipartFile.fromFile(
+          imagePath,
+        ),
       });
 
       final response = await _dio.post(
@@ -157,6 +173,24 @@ class AuthApiService {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  /// profile details with balance
+  Future<Map<String, dynamic>> fetchUserProfile() async {
+    try {
+      final response = await _dio.get('/user/profile/');
+
+      if (response.statusCode == 200) {
+        return response.data['data']
+            as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to fetch user profile.');
+      }
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw Exception('An unknown error occurred: $e');
     }
   }
 }
