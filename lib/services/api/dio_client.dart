@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:swift_wallet_mobile/services/token_storage_service.dart';
 import 'package:swift_wallet_mobile/models/user_models.dart';
 
-const String baseUrl = 'http://localhost:8000/api';
+const String baseUrl = 'http://10.0.2.2:8000/api';
 
 final dioProvider = Provider((ref) {
   final dio = Dio(BaseOptions(baseUrl: baseUrl));
